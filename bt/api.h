@@ -72,14 +72,13 @@ namespace bt::api {
             auto storage = make_storage(db_path, table);
             storage.sync_schema();
             storage.remove_all<Order>();
-            // ������д��
-            const int chunksize = 5000;// ÿ�β����������
-            int n = store_.size();     // �ܵ�������
+            const int chunksize = 5000;
+            int n = store_.size();
             for (int i = 0; i < n; i += chunksize) {
-                int j = std::min(i + chunksize, n);// ��һ�����ݵĽ���λ��
-                auto begin = store_.begin() + i;   // ��ǰ�������ݵĿ�ʼ������
-                auto end = store_.begin() + j;     // ��ǰ�������ݵĽ���������
-                storage.replace_range(begin, end); // ʹ�� replace_range ������������
+                int j = std::min(i + chunksize, n);
+                auto begin = store_.begin() + i;
+                auto end = store_.begin() + j;
+                storage.replace_range(begin, end);
             }
         }
     };
@@ -96,6 +95,17 @@ namespace bt::api {
 
         void clear() {
             store_.clear();
+        }
+
+        auto get_pnl(){
+            std::vector<double> value_{};
+            value_.reserve(store_.size());
+            for (const auto &i: store_) {
+                if (i.status == "post_trade"){
+                    value_.push_back(i.total_pnl);
+                }
+            }
+            return value_;
         }
 
         void save(const std::string &db_path, const std::string &table_name = "position") {
@@ -115,14 +125,13 @@ namespace bt::api {
             auto storage = make_storage(db_path, table);
             storage.sync_schema();
             storage.remove_all<Position>();
-            // ������д��
-            const int chunksize = 5000;// ÿ�β����������
-            int n = store_.size();     // �ܵ�������
+            const int chunksize = 5000;
+            int n = store_.size();
             for (int i = 0; i < n; i += chunksize) {
-                int j = std::min(i + chunksize, n);// ��һ�����ݵĽ���λ��
-                auto begin = store_.begin() + i;   // ��ǰ�������ݵĿ�ʼ������
-                auto end = store_.begin() + j;     // ��ǰ�������ݵĽ���������
-                storage.replace_range(begin, end); // ʹ�� replace_range ������������
+                int j = std::min(i + chunksize, n);
+                auto begin = store_.begin() + i;
+                auto end = store_.begin() + j;
+                storage.replace_range(begin, end);
             }
         }
     };
