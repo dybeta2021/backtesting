@@ -1,5 +1,6 @@
 #include "bt/broker.h"
 #include "bt/signal.h"
+#include "bt/plot.h"
 #include <cxxopts.hpp>
 #include <vector>
 
@@ -229,5 +230,8 @@ int main(int argc, char **argv) {
     broker.show_position();
     broker.save_result("result.sqlite");
     st.save("result.sqlite");
+
+    const auto pnl = broker.get_pnl();
+
     return 0;
 }

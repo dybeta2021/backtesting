@@ -1,0 +1,6 @@
+[submodule "deps/doxystrap"]
+	path = deps/doxystrap
+	url = https://github.com/allanleal/doxystrap.git
+[submodule "deps/gnuplot-palettes"]
+	path = deps/gnuplot-palettes
+	url = https://github.com/sciplot/gnuplot-palettes

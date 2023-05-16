@@ -9,6 +9,8 @@ include_directories(deps/spdlog-1.11.0/include)
 add_subdirectory(deps/spdlog-1.11.0)
 include_directories(deps/cxxopts-3.1.1/include)
 add_subdirectory(deps/cxxopts-3.1.1)
+include_directories(deps/sciplot-0.3.1/)
+add_subdirectory(deps/sciplot-0.3.1)
 
 find_package(SQLite3 REQUIRED)
 include_directories(deps/sqlite_orm-1.8.2/include)
