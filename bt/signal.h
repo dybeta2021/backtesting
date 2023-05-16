@@ -27,5 +27,32 @@ namespace bt::signal {
             storage.remove_all<Signal>();
             storage.insert_range(store_.begin(), store_.end());
         }
+
+        auto get_signal() {
+            std::vector<double> signal_{};
+            signal_.reserve(store_.size());
+            for (const auto &i: store_) {
+                signal_.push_back(i.signal);
+            }
+            return signal_;
+        }
+
+        auto get_price() {
+            std::vector<double> price_{};
+            price_.reserve(store_.size());
+            for (const auto &i: store_) {
+                price_.push_back(i.close_price);
+            }
+            return price_;
+        }
+
+        auto get_order_volume() {
+            std::vector<double> order_volume_{};
+            order_volume_.reserve(store_.size());
+            for (const auto &i: store_) {
+                order_volume_.push_back(i.order_volume);
+            }
+            return order_volume_;
+        }
     };
 }// namespace bt::signal

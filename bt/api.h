@@ -27,7 +27,6 @@ namespace bt::api {
                                                    make_column("high", &Bar::high_price),
                                                    make_column("low", &Bar::low_price),
                                                    make_column("close", &Bar::close_price)));
-//            storage.sync_schema(true);
             data_ = storage.get_all<Bar>();
             size_ = data_.size();
             SPDLOG_INFO("Data size:{}, start:{}, end:{}.", data_.size(), data_[0].datetime, data_[data_.size() - 1].datetime);
@@ -72,14 +71,14 @@ namespace bt::api {
             auto storage = make_storage(db_path, table);
             storage.sync_schema();
             storage.remove_all<Order>();
-            // ·ÖÅú´ÎÐ´Èë
-            const int chunksize = 5000; // Ã¿´Î²åÈëµÄÊý¾ÝÁ¿
-            int n = store_.size(); // ×ÜµÄÊý¾ÝÁ¿
+            // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð´ï¿½ï¿½
+            const int chunksize = 5000;// Ã¿ï¿½Î²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+            int n = store_.size();     // ï¿½Üµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
             for (int i = 0; i < n; i += chunksize) {
-                int j = std::min(i + chunksize, n); // ÏÂÒ»ÅúÊý¾ÝµÄ½áÊøÎ»ÖÃ
-                auto begin = store_.begin() + i; // µ±Ç°Åú´ÎÊý¾ÝµÄ¿ªÊ¼µü´úÆ÷
-                auto end = store_.begin() + j; // µ±Ç°Åú´ÎÊý¾ÝµÄ½áÊøµü´úÆ÷
-                storage.replace_range(begin, end); // Ê¹ÓÃ replace_range ·½·¨²åÈëÊý¾Ý
+                int j = std::min(i + chunksize, n);// ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ÝµÄ½ï¿½ï¿½ï¿½Î»ï¿½ï¿½
+                auto begin = store_.begin() + i;   // ï¿½ï¿½Ç°ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ÝµÄ¿ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+                auto end = store_.begin() + j;     // ï¿½ï¿½Ç°ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ÝµÄ½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+                storage.replace_range(begin, end); // Ê¹ï¿½ï¿½ replace_range ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
             }
         }
     };
@@ -115,17 +114,16 @@ namespace bt::api {
             auto storage = make_storage(db_path, table);
             storage.sync_schema();
             storage.remove_all<Position>();
-            // ·ÖÅú´ÎÐ´Èë
-            const int chunksize = 5000; // Ã¿´Î²åÈëµÄÊý¾ÝÁ¿
-            int n = store_.size(); // ×ÜµÄÊý¾ÝÁ¿
+            // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð´ï¿½ï¿½
+            const int chunksize = 5000;// Ã¿ï¿½Î²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+            int n = store_.size();     // ï¿½Üµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
             for (int i = 0; i < n; i += chunksize) {
-                int j = std::min(i + chunksize, n); // ÏÂÒ»ÅúÊý¾ÝµÄ½áÊøÎ»ÖÃ
-                auto begin = store_.begin() + i; // µ±Ç°Åú´ÎÊý¾ÝµÄ¿ªÊ¼µü´úÆ÷
-                auto end = store_.begin() + j; // µ±Ç°Åú´ÎÊý¾ÝµÄ½áÊøµü´úÆ÷
-                storage.replace_range(begin, end); // Ê¹ÓÃ replace_range ·½·¨²åÈëÊý¾Ý
+                int j = std::min(i + chunksize, n);// ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ÝµÄ½ï¿½ï¿½ï¿½Î»ï¿½ï¿½
+                auto begin = store_.begin() + i;   // ï¿½ï¿½Ç°ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ÝµÄ¿ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+                auto end = store_.begin() + j;     // ï¿½ï¿½Ç°ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ÝµÄ½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+                storage.replace_range(begin, end); // Ê¹ï¿½ï¿½ replace_range ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
             }
         }
-
     };
 
 }// namespace bt::api

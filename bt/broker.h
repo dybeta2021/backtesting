@@ -1,8 +1,8 @@
 #pragma once
-#include "logger.h"
-#include "spdlog/spdlog.h"
 #include "api.h"
 #include "data.h"
+#include "logger.h"
+#include "spdlog/spdlog.h"
 
 namespace bt::broker {
     using bt::data::Bar;
@@ -176,7 +176,7 @@ namespace bt::broker {
             delete record_position_api_;
         }
 
-        auto get_size(){
+        auto get_size() {
             return data_api_->get_size();
         }
 
@@ -185,7 +185,7 @@ namespace bt::broker {
         }
 
         auto get_pre_bar() {
-            if(current_idx_ == 0){
+            if (current_idx_ == 0) {
                 return bt::data::Bar{};
             }
             return data_api_->get_bar(current_idx_);
@@ -195,7 +195,7 @@ namespace bt::broker {
             return data_api_->get_bar(current_idx_);
         }
 
-        auto get_current_position(){
+        auto get_current_position() {
             return position_;
         }
 
@@ -234,7 +234,7 @@ namespace bt::broker {
 
             if (end_idx_ == 0) {
                 end_idx_ = get_size() - 1;
-                SPDLOG_WARN("error params:{}, {}, data range:{}, {}", start_time, end_time, get_bar(0).datetime, get_bar(get_size()-1).datetime);
+                SPDLOG_WARN("error params:{}, {}, data range:{}, {}", start_time, end_time, get_bar(0).datetime, get_bar(get_size() - 1).datetime);
             }
 
             if (start_idx_ >= end_idx_) {
@@ -269,7 +269,6 @@ namespace bt::broker {
 
         void insert_order(double volume) {
             if (volume == 0) {
-//                SPDLOG_ERROR("error order, volume:{}.", volume);
                 return;
             }
             position_.status = "trade";

@@ -6,7 +6,7 @@
 
 #include <string>
 
-namespace bt::data{
+namespace bt::data {
     struct Bar {
         size_t idx{};
         std::string datetime;
@@ -49,4 +49,4 @@ namespace bt::data{
     };
 
 
-}
+}// namespace bt::data
