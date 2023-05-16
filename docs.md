@@ -1,3 +1,2 @@
 
-- 信号优化器，不是回测系统，不要复杂化
-- 
+# A simple trend-following indicator optimizer.

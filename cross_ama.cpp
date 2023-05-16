@@ -142,8 +142,8 @@ public:
 // EMA交叉
 class Strategy : public bt::signal::SignalApi {
 private:
-    double pre_ama_ = 0;
-    double pre_signal_ = 0;
+    double pre_ama_{};
+    double pre_signal_{};
     bool order_signal_ = false;
     KAMA *ama_ptr_ = nullptr;
 
@@ -158,6 +158,7 @@ public:
 
     void reset(const bool &order_signal) {
         pre_signal_ = 0;
+        pre_ama_ = 0;
         order_signal_ = order_signal;
     }
 
@@ -191,6 +192,9 @@ public:
 
         bt::data::Signal record{bar.datetime, bar.open_price, bar.high_price, bar.low_price, bar.close_price, signal, order_volume};
         store_.push_back(record);
+
+        SPDLOG_DEBUG("datetime:{}, price:{}, ama:{}, signal:{}, pre_signal:{}, order_volume:{}",
+                     bar.datetime, bar.close_price, s1, signal, pre_signal_, order_volume);
         pre_signal_ = signal;
         return order_volume;
     }
@@ -199,18 +203,19 @@ public:
 
 int main(int argc, char **argv) {
     cxxopts::Options options("cross_signal", "A simple trend-following indicator optimizer.");
-    options.add_options()("f, filename", "Filename of SQLite", cxxopts::value<std::string>()->default_value("hs300_60min.sqlite"))("s, start_time", "Start Datetime", cxxopts::value<std::string>()->default_value("2017-01-01 09:00:00"))("e, end_time", "End Datetime", cxxopts::value<std::string>()->default_value("2023-05-11 16:00:00"))("n, params", "Params", cxxopts::value<int>()->default_value("3"));
+    options.add_options()("f, filename", "Filename of SQLite", cxxopts::value<std::string>()->default_value("hs300_60min.sqlite"))("s, start_time", "Start Datetime", cxxopts::value<std::string>()->default_value("2022-01-01 09:00:00"))("e, end_time", "End Datetime", cxxopts::value<std::string>()->default_value("2023-05-11 16:00:00"))("n, params", "Params", cxxopts::value<int>()->default_value("11"));
     auto result = options.parse(argc, argv);
 
     auto ret = bt::utils::create_logger("clogs/test.log", "trace", false, false, false, 1, 1);
     auto broker = bt::broker::Broker(result["filename"].as<std::string>());
     broker.reset(result["start_time"].as<std::string>(), result["end_time"].as<std::string>());
 
-    Strategy st{result["params"].as<int>()};
+    const auto params = result["params"].as<int>();
+    Strategy st(params);
     st.reset(false);
-    for (auto i = 0; i < broker.get_start_idx(); i++) {
+    for (auto i = 0; i <  broker.get_start_idx(); i++) {
         const auto bar = broker.get_bar(i);
-        st.update(bar);
+        const auto tmp_signal = st.update(bar);
     }
 
     st.reset(true);
