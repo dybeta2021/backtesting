@@ -4,6 +4,7 @@
 #include <cxxopts.hpp>
 #include <vector>
 
+#include "bt/plot.h"
 
 class DMA {
 private:
@@ -232,6 +233,11 @@ int main(int argc, char **argv) {
     st.save("result.sqlite");
 
     const auto pnl = broker.get_pnl();
-
+    const auto price = st.get_price();
+    bt::plot::plot_pnl(pnl, price);
     return 0;
 }
+
+
+
+
