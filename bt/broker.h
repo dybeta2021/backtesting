@@ -1,7 +1,7 @@
 #pragma once
+#include "logger.h"
 #include "api.h"
 #include "data.h"
-#include "logger.h"
 #include "spdlog/spdlog.h"
 
 namespace bt::broker {
@@ -320,10 +320,15 @@ namespace bt::broker {
             record_position_api_->insert_record(position_);
         }
 
+        auto get_pnl(){
+            return record_position_api_->get_pnl();
+        }
+
         void save_result(const std::string &db_path) {
             record_order_api_->save(db_path);
             record_position_api_->save(db_path);
         }
+
 
     public:
         void show_position() {
