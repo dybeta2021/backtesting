@@ -3,8 +3,8 @@ project(backtesting)
 
 set(CMAKE_CXX_STANDARD 20)
 
-include_directories(deps/fmt-9.1.0/include)
-add_subdirectory(deps/fmt-9.1.0)
+include_directories(deps/fmt-10.0.0/include)
+add_subdirectory(deps/fmt-10.0.0)
 include_directories(deps/spdlog-1.11.0/include)
 add_subdirectory(deps/spdlog-1.11.0)
 include_directories(deps/cxxopts-3.1.1/include)
