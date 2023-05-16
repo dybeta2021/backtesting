@@ -1,2 +1,2 @@
 # backtesting
-Trend Following Signal Backtesting Framework.
+Trend following signal backtesting framework, a simple trend-following indicator optimizer.
