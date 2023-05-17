@@ -1,7 +1,7 @@
 #pragma once
-#include "logger.h"
 #include "api.h"
 #include "data.h"
+#include "logger.h"
 #include "spdlog/spdlog.h"
 
 namespace bt::broker {
@@ -164,8 +164,8 @@ namespace bt::broker {
 
 
     public:
-        explicit Broker(const std::string &db_path, const std::string &table_name = "quote") {
-            data_api_ = new bt::api::DataApi(db_path, table_name);
+        explicit Broker(const std::vector<Bar> &data) {
+            data_api_ = new bt::api::DataApi(data);
             record_order_api_ = new bt::api::RecordOrder();
             record_position_api_ = new bt::api::RecordPosition();
         }
@@ -320,8 +320,8 @@ namespace bt::broker {
             record_position_api_->insert_record(position_);
         }
 
-        auto get_pnl(){
-            return record_position_api_->get_pnl();
+        const auto get_record_api() {
+            return record_position_api_;
         }
 
         void save_result(const std::string &db_path) {

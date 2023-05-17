@@ -3,7 +3,6 @@
 #include "sciplot/sciplot.hpp"
 #include <iostream>
 #include <numeric>
-#include <sciplot/sciplot.hpp>
 #include <vector>
 
 namespace bt::plot {

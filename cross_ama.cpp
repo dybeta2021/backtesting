@@ -1,10 +1,7 @@
-#include "bt/broker.h"
-#include "bt/signal.h"
-#include "bt/plot.h"
-#include <cxxopts.hpp>
+#include "bt/interface.h"
+#include <string>
 #include <vector>
 
-#include "bt/plot.h"
 
 class DMA {
 private:
@@ -80,7 +77,6 @@ public:
 
 class KAMA {
 private:
-    int period_;
     size_t count_;
     std::vector<double> prices_;
     std::vector<double> dma_prices_;
@@ -91,15 +87,23 @@ private:
 
     double dma_;
     double ama_;
+    int ama_short_;
+    int ama_long_;
+    int ama_num_;
 
 public:
-    explicit KAMA(const int &period) {
-        period_ = period;
+    explicit KAMA(const int ama_short,
+                  const int ama_long,
+                  const int ama_num,
+                  const int ema_num) {
+        ama_short_ = ama_short;
+        ama_long_ = ama_long;
+        ama_num_ = ama_num;
         count_ = 0;
         dma_ = 0;
         ama_ = 0;
 
-        ema_ptr_ = new EMA(3);
+        ema_ptr_ = new EMA(ema_num);
         dma_ptr_ = new DMA();
     }
 
@@ -111,19 +115,19 @@ public:
     double update(const double &price) {
         const auto idx = count_++;
         prices_.push_back(price);
-        if (idx < period_) {
+        if (idx < ama_num_) {
             return 0;
         }
 
-        const auto DIR = abs(price - prices_[idx - period_]);
+        const auto DIR = abs(price - prices_[idx - ama_num_]);
         double VIR = 0;
-        for (auto i = 1 + idx - period_; i <= idx; i++) {
+        for (auto i = 1 + idx - ama_num_; i <= idx; i++) {
             VIR += abs(prices_[i] - prices_[i - 1]);
         }
 
         const auto ER = DIR / VIR;
-        constexpr auto FAST_SC = 2. / (2 + 1);
-        constexpr auto SLOW_SC = 2. / (30 + 1);
+        const auto FAST_SC = 2. / (ama_short_ + 1);
+        const auto SLOW_SC = 2. / (ama_long_ + 1);
         const auto SSC = ER * (FAST_SC - SLOW_SC) + SLOW_SC;
         const auto CONSTANT = SSC * SSC;
 
@@ -150,8 +154,11 @@ private:
     KAMA *ama_ptr_ = nullptr;
 
 public:
-    explicit Strategy(const int &params=11) {
-        ama_ptr_ = new KAMA(params);
+    explicit Strategy(const int ama_short,
+                      const int ama_long,
+                      const int ama_num,
+                      const int ema_num) {
+        ama_ptr_ = new KAMA(ama_short, ama_long, ama_num, ema_num);
     }
 
     ~Strategy() {
@@ -160,7 +167,6 @@ public:
 
     void reset(const bool &order_signal) {
         pre_signal_ = 0;
-        pre_ama_ = 0;
         order_signal_ = order_signal;
     }
 
@@ -202,39 +208,54 @@ public:
     }
 };
 
+int main(int argc, char *argv[]) {
+    std::cout << "argc = " << argc << std::endl;
+    for (int i = 0; i < argc; i++) {
+        std::cout << "argv[" << i << "] = " << argv[i] << std::endl;
+    }
+    const std::string db_name = argv[1];
+    const auto data = bt::api::load_db(db_name);
+    const std::string start_time = argv[2];
+    const std::string end_time = argv[3];
+    const int ama_short = std::stoi(argv[4]);
+    const int ama_long = std::stoi(argv[5]);
+    const int ama_num = std::stoi(argv[6]);
+    const int ema_num = std::stoi(argv[7]);
 
-int main(int argc, char **argv) {
-    cxxopts::Options options("cross_signal", "A simple trend-following indicator optimizer.");
-    options.add_options()("f, filename", "Filename of SQLite", cxxopts::value<std::string>()->default_value("hs300_60min.sqlite"))("s, start_time", "Start Datetime", cxxopts::value<std::string>()->default_value("2022-01-01 09:00:00"))("e, end_time", "End Datetime", cxxopts::value<std::string>()->default_value("2023-05-11 16:00:00"))("n, params", "Params", cxxopts::value<int>()->default_value("11"));
-    auto result = options.parse(argc, argv);
 
-    auto ret = bt::utils::create_logger("clogs/test.log", "trace", false, false, false, 1, 1);
-    auto broker = bt::broker::Broker(result["filename"].as<std::string>());
-    broker.reset(result["start_time"].as<std::string>(), result["end_time"].as<std::string>());
+    auto ret = bt::utils::create_logger("clogs/test.log", "info", false, false, false, 1, 1);
+    auto broker = bt::broker::Broker(data);
+    broker.reset(start_time, end_time);
 
-    const auto params = result["params"].as<int>();
-    Strategy st(params);
+    Strategy st(ama_short, ama_long, ama_num, ema_num);
     st.reset(false);
     for (auto i = 0; i <  broker.get_start_idx(); i++) {
         const auto bar = broker.get_bar(i);
         const auto tmp_signal = st.update(bar);
+        SPDLOG_INFO("idx:{}, datetime:{}, price:{}, signal:{}", bar.idx, bar.datetime, bar.close_price, tmp_signal);
     }
+
+    const auto bar = broker.get_bar(broker.get_start_idx());
+    SPDLOG_INFO("start_idx:{}, idx:{}, datetime:{}", broker.get_start_idx(), bar.idx, bar.datetime);
+
 
     st.reset(true);
     for (auto i = broker.get_start_idx(); i < broker.get_end_idx() + 1; i++) {
         broker.pre_trade();
         const auto bar = broker.get_current_bar();
-        broker.insert_order(st.update(bar));
+        const auto tmp_signal = st.update(bar);
+        SPDLOG_INFO("idx:{}, datetime:{}, price:{}, signal:{}", bar.idx, bar.datetime, bar.close_price, tmp_signal);
+        broker.insert_order(tmp_signal);
         broker.post_trade();
     }
 
     broker.show_position();
-    broker.save_result("result.sqlite");
-    st.save("result.sqlite");
+    broker.save_result("value_result.sqlite");
+    st.save("value_result.sqlite");
 
-    const auto pnl = broker.get_pnl();
+    const auto pnl = broker.get_record_api()->get_pnl();
     const auto price = st.get_price();
-    bt::plot::plot_pnl(pnl, price);
+    broker.show_position();
     return 0;
 }
 

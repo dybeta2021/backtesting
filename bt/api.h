@@ -1,6 +1,6 @@
 #pragma once
-#include "logger.h"
 #include "fmt/format.h"
+#include "logger.h"
 
 #include "sqlite_orm/sqlite_orm.h"
 #include <string>
@@ -12,23 +12,28 @@ namespace bt::api {
     using bt::data::Order;
     using bt::data::Position;
 
+    auto load_db(const std::string &db_path, const std::string &table_name = "quote") {
+        using namespace sqlite_orm;
+        auto storage = make_storage(db_path,
+                                    make_table(table_name,
+                                               make_column("index", &Bar::idx),
+                                               make_column("datetime", &Bar::datetime),
+                                               make_column("open", &Bar::open_price),
+                                               make_column("high", &Bar::high_price),
+                                               make_column("low", &Bar::low_price),
+                                               make_column("close", &Bar::close_price)));
+        return storage.get_all<Bar>();
+    }
+
+
     class DataApi {
     private:
         std::vector<Bar> data_{};
         size_t size_ = 0;
 
     public:
-        explicit DataApi(const std::string &db_path, const std::string &table_name = "quote") {
-            using namespace sqlite_orm;
-            auto storage = make_storage(db_path,
-                                        make_table(table_name,
-                                                   make_column("index", &Bar::idx),
-                                                   make_column("datetime", &Bar::datetime),
-                                                   make_column("open", &Bar::open_price),
-                                                   make_column("high", &Bar::high_price),
-                                                   make_column("low", &Bar::low_price),
-                                                   make_column("close", &Bar::close_price)));
-            data_ = storage.get_all<Bar>();
+        explicit DataApi(const std::vector<Bar> &data) {
+            data_ = data;
             size_ = data_.size();
             SPDLOG_INFO("Data size:{}, start:{}, end:{}.", data_.size(), data_[0].datetime, data_[data_.size() - 1].datetime);
         }
@@ -60,7 +65,7 @@ namespace bt::api {
             store_.clear();
         }
 
-        void save(const std::string &db_path, const std::string &table_name = "order") {
+        void save(const std::string &db_path, const std::string &table_name = "order_table") {
             using namespace sqlite_orm;
 
             auto table = make_table(table_name,
@@ -97,18 +102,52 @@ namespace bt::api {
             store_.clear();
         }
 
-        auto get_pnl(){
+        auto get_pnl() {
             std::vector<double> value_{};
             value_.reserve(store_.size());
             for (const auto &i: store_) {
-                if (i.status == "post_trade"){
+                if (i.status == "post_trade") {
                     value_.push_back(i.total_pnl);
                 }
             }
             return value_;
         }
 
-        void save(const std::string &db_path, const std::string &table_name = "position") {
+        auto get_price() {
+            std::vector<double> value_{};
+            value_.reserve(store_.size());
+            for (const auto &i: store_) {
+                if (i.status == "post_trade") {
+                    value_.push_back(i.current_price);
+                }
+            }
+            return value_;
+        }
+
+        auto get_datetime() {
+            std::vector<std::string> value_{};
+            value_.reserve(store_.size());
+            for (const auto &i: store_) {
+                if (i.status == "post_trade") {
+                    value_.push_back(i.datetime);
+                }
+            }
+            return value_;
+        }
+
+        auto get_position() {
+            std::vector<double> value_{};
+            value_.reserve(store_.size());
+            for (const auto &i: store_) {
+                if (i.status == "post_trade") {
+                    value_.push_back(i.volume);
+                }
+            }
+            return value_;
+        }
+
+
+        void save(const std::string &db_path, const std::string &table_name = "position_table") {
             using namespace sqlite_orm;
 
             auto table = make_table(table_name,

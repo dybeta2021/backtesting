@@ -11,7 +11,7 @@ namespace bt::signal {
             return 0;
         };
 
-        void save(const std::string &db_path, const std::string &table_name = "signal") {
+        void save(const std::string &db_path, const std::string &table_name = "signal_table") {
             using namespace sqlite_orm;
             auto table = make_table(table_name,
                                     make_column("datetime", &Signal::datetime),
