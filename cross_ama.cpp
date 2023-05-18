@@ -6,7 +6,6 @@
 using utils::KAMA;
 
 
-
 // EMA交叉
 class Strategy : public bt::signal::SignalApi {
 private:
@@ -91,7 +90,7 @@ int main(int argc, char *argv[]) {
 
     Strategy st(ama_short, ama_long, ama_num, ema_num);
     st.reset(false);
-    for (auto i = 0; i <  broker.get_start_idx(); i++) {
+    for (auto i = 0; i < broker.get_start_idx(); i++) {
         const auto bar = broker.get_bar(i);
         const auto tmp_signal = st.update(bar);
         SPDLOG_INFO("idx:{}, datetime:{}, price:{}, signal:{}", bar.idx, bar.datetime, bar.close_price, tmp_signal);
@@ -120,7 +119,3 @@ int main(int argc, char *argv[]) {
     broker.show_position();
     return 0;
 }
-
-
-
-

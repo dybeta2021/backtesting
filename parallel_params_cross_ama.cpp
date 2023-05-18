@@ -2,15 +2,14 @@
 // Created by 稻草人 on 2023/5/17.
 //
 #include "bt/interface.h"
+#include "utils/ma.h"
 #include <mutex>
 #include <string>
 #include <thread>
 #include <vector>
-#include "utils/ma.h"
 
 std::mutex mutex;// 用于保护params_list的互斥量
 using utils::KAMA;
-
 
 
 // EMA交叉
