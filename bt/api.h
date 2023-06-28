@@ -77,7 +77,7 @@ namespace bt::api {
             auto storage = make_storage(db_path, table);
             storage.sync_schema();
             storage.remove_all<Order>();
-            const int chunksize = 5000;
+            const int chunksize = 1000;
             int n = store_.size();
             for (int i = 0; i < n; i += chunksize) {
                 int j = std::min(i + chunksize, n);
@@ -164,7 +164,7 @@ namespace bt::api {
             auto storage = make_storage(db_path, table);
             storage.sync_schema();
             storage.remove_all<Position>();
-            const int chunksize = 5000;
+            const int chunksize = 1000;
             int n = store_.size();
             for (int i = 0; i < n; i += chunksize) {
                 int j = std::min(i + chunksize, n);
