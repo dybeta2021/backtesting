@@ -25,15 +25,7 @@ namespace bt::signal {
             auto storage = make_storage(db_path, table);
             storage.sync_schema();
             storage.remove_all<Signal>();
-            const int chunksize = 1000;
-            int n = store_.size();
-            for (int i = 0; i < n; i += chunksize) {
-                int j = std::min(i + chunksize, n);
-                auto begin = store_.begin() + i;
-                auto end = store_.begin() + j;
-                storage.replace_range(begin, end);
-            }
-
+            storage.insert_range(store_.begin(), store_.end());
         }
 
         auto get_signal() {
